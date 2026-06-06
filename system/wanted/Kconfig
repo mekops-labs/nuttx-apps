@@ -1,0 +1,41 @@
+#
+# WANTED Engine built-in application
+#
+# WAMR is vendored: this app compiles engine/vendor/wamr directly via
+# product-mini/platforms/nuttx/wamr.mk, so it does NOT select INTERPRETERS_WAMR
+# (apps/interpreters/wamr), which would trigger a second, separate WAMR build.
+# The application MAIN entry is wanted_main (wanted_main.c).
+#
+
+config SYSTEM_WANTED
+	tristate "WANTED Engine"
+	default n
+	---help---
+		WebAssembly nanocontainer runtime (WANTED Engine): a VFS-routed
+		runtime executing wapps in WASM isolation. Phase 1 targets the
+		NuttX simulator over hostfs; Phase 2 targets ESP32.
+
+if SYSTEM_WANTED
+
+config SYSTEM_WANTED_PROGNAME
+	string "WANTED program name"
+	default "wanted"
+	---help---
+		Name of the NSH built-in command that runs wanted_main().
+
+config SYSTEM_WANTED_PRIORITY
+	int "WANTED task priority"
+	default 100
+
+config SYSTEM_WANTED_STACKSIZE
+	int "WANTED stack size"
+	default 8192
+
+config SYSTEM_WANTED_SUPERVISOR_IMAGE
+	string "Supervisor TAR image path"
+	default "/data/wanted/supervisor.tar"
+	---help---
+		Path (resolved through the engine VFS / hostfs) of the supervisor
+		OCI TAR image loaded at boot.
+
+endif # SYSTEM_WANTED

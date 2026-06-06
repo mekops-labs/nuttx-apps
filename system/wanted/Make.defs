@@ -1,0 +1,9 @@
+############################################################################
+# apps/system/wanted/Make.defs
+#
+# WANTED Engine NuttX built-in application registration.
+############################################################################
+
+ifneq ($(CONFIG_SYSTEM_WANTED),)
+CONFIGURED_APPS += $(APPDIR)/system/wanted
+endif
