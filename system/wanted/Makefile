@@ -46,7 +46,6 @@ CFLAGS += -Iengine/src/include
 CFLAGS += -Iengine/platform/include
 CFLAGS += -Iengine/platform/nuttx/include
 CFLAGS += -Iengine/vendor/tiny-json
-CFLAGS += -Iengine/vendor/json-maker/src/include
 CFLAGS += -Iengine/vendor/c9
 CFLAGS += -Iengine/vendor/cwalk/include
 
@@ -74,10 +73,6 @@ DEPPATH += --dep-path engine/src/wasi
 CSRCS += tiny-json.c
 VPATH   += engine/vendor/tiny-json
 DEPPATH += --dep-path engine/vendor/tiny-json
-
-CSRCS += json-maker.c
-VPATH   += engine/vendor/json-maker/src
-DEPPATH += --dep-path engine/vendor/json-maker/src
 
 CSRCS += c9.c
 VPATH   += engine/vendor/c9
