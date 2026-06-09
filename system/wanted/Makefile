@@ -53,6 +53,13 @@ CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
 CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_SUPERVISOR_IMAGE)))\"
 
+# Engine version string, surfaced at /proc/wanted. The CMake build derives this
+# from git describe (cmake/VersionFromGit.cmake); mirror it here so the NuttX
+# build reports the same value instead of the "unknown" fallback. Falls back to
+# "unknown" when git or tags are unavailable (e.g. a shallow CI clone).
+WANTED_VERSION := $(shell git -C engine describe --tags --dirty 2>/dev/null || echo unknown)
+CFLAGS += -DWANTED_VERSION=\"$(WANTED_VERSION)\"
+
 # --- Engine core ----------------------------------------------------------
 CSRCS += wanted_malloc.c wanted.c wanted_wasm_api.c wanted-vfs-api.c log-store.c
 VPATH   += engine/src
