@@ -90,12 +90,12 @@ VPATH   += engine/vendor/cwalk/src
 DEPPATH += --dep-path engine/vendor/cwalk/src
 
 # --- NuttX platform layer -------------------------------------------------
-CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs.c socket.c
+CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c
 VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
 # --- Shared POSIX platform layer (also compiled by the Linux engine build) --
-CSRCS   += mutex.c clock.c
+CSRCS   += mutex.c clock.c fs.c socket.c
 VPATH   += engine/platform/posix
 DEPPATH += --dep-path engine/platform/posix
 
