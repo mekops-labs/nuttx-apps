@@ -99,7 +99,7 @@ VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
 # --- Shared POSIX platform layer (also compiled by the Linux engine build) --
-CSRCS   += mutex.c clock.c fs.c socket.c
+CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c
 VPATH   += engine/platform/posix
 DEPPATH += --dep-path engine/platform/posix
 
