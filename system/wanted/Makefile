@@ -53,6 +53,10 @@ CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
 CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_SUPERVISOR_IMAGE)))\"
 
+# Override object SUFFIX to be stable regardless of build path (fixes CI failures
+# with long absolute paths in CWD mangled by Application.mk).
+SUFFIX = .wanted
+
 # Engine version string, surfaced at /proc/wanted. The CMake build derives this
 # from git describe (cmake/VersionFromGit.cmake); mirror it here so the NuttX
 # build reports the same value instead of the "unknown" fallback. Falls back to
