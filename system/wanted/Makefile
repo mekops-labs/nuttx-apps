@@ -53,6 +53,12 @@ CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
 CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_SUPERVISOR_IMAGE)))\"
 
+# Resource-limit overrides forwarded from `make nuttx-build PROFILE=<name>`
+# (engine cmake/profiles/<name>.cmake, extracted by test/nuttx-sim.sh). The
+# engine headers #ifndef-guard each limit, so these -D defines win over the
+# defaults; empty when no profile is selected (uses the constrained defaults).
+CFLAGS += $(WANTED_RESOURCE_DEFINES)
+
 # Override object SUFFIX to be stable regardless of build path (fixes CI failures
 # with long absolute paths in CWD mangled by Application.mk).
 SUFFIX = .wanted
