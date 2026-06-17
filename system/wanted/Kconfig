@@ -38,4 +38,26 @@ config SYSTEM_WANTED_SUPERVISOR_IMAGE
 		Path (resolved through the engine VFS / hostfs) of the supervisor
 		OCI TAR image loaded at boot.
 
+config SYSTEM_WANTED_BOOT_ROMFS
+	bool "Bundle the supervisor image in a boot ROMFS"
+	default n
+	select FS_ROMFS
+	select BOARDCTL_ROMDISK
+	---help---
+		Bundle the supervisor OCI TAR into the firmware as a ROMFS image and
+		mount it read-only at /rom via the wanted_esp32_main init shim (set
+		CONFIG_INIT_ENTRYPOINT=wanted_esp32_main). Point
+		SYSTEM_WANTED_SUPERVISOR_IMAGE at "/rom/wanted/supervisor.tar". For
+		targets with no host filesystem to stage the image onto (ESP32); needs
+		FS_RAMMAP so the loader can map the ROMFS file.
+
+config SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR
+	string "Supervisor variant bundled in the boot ROMFS"
+	default "wsh"
+	depends on SYSTEM_WANTED_BOOT_ROMFS
+	---help---
+		Which built supervisor image (wasm/supervisor/<variant>/supervisor.tar)
+		to bake into the boot ROMFS: wsh (interactive shell), sheriff
+		(production), or selftest.
+
 endif # SYSTEM_WANTED

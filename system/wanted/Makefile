@@ -126,6 +126,34 @@ CSRCS   += wanted_sim_main.c
 VPATH   += engine/platform/nuttx/app
 DEPPATH += --dep-path engine/platform/nuttx/app
 
+# ESP32 (or any no-host-fs target) boot ROMFS: bake the supervisor TAR into a
+# ROMFS image generated at build time and compile the wanted_esp32_main init
+# shim that mounts it at /rom. Gated so the sim build is untouched.
+ifeq ($(CONFIG_SYSTEM_WANTED_BOOT_ROMFS),y)
+CSRCS += wanted_esp32_main.c
+
+BOOT_ROMFS_VARIANT := $(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR)))
+BOOT_ROMFS_SRC     := engine/wasm/supervisor/$(BOOT_ROMFS_VARIANT)/supervisor.tar
+BOOT_ROMFS_HDR     := engine/platform/nuttx/app/boot-romfs.h
+
+# Generate the header before compiling the shim (apps pre-build hook).
+context:: $(BOOT_ROMFS_HDR)
+
+$(BOOT_ROMFS_HDR): $(BOOT_ROMFS_SRC)
+	$(Q) rm -rf boot-romfs-stage && mkdir -p boot-romfs-stage/wanted
+	$(Q) cp $< boot-romfs-stage/wanted/supervisor.tar
+	$(Q) genromfs -f boot-romfs.img -d boot-romfs-stage -V wanted
+	$(Q) { echo '#include <nuttx/compiler.h>'; \
+	       xxd -i boot-romfs.img \
+	         | sed -e 's/unsigned char boot_romfs_img\[\]/const unsigned char aligned_data(16) boot_romfs_img[]/' \
+	               -e 's/unsigned int boot_romfs_img_len/const unsigned int boot_romfs_img_len/'; \
+	     } > $@
+	$(Q) rm -rf boot-romfs.img boot-romfs-stage
+
+clean::
+	$(Q) rm -rf boot-romfs.img boot-romfs-stage $(BOOT_ROMFS_HDR)
+endif
+
 PROGNAME  = $(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_PROGNAME)))
 PRIORITY  = $(CONFIG_SYSTEM_WANTED_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_WANTED_STACKSIZE)
