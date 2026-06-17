@@ -135,13 +135,23 @@ CSRCS += wanted_esp32_main.c
 BOOT_ROMFS_VARIANT := $(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR)))
 BOOT_ROMFS_SRC     := engine/wasm/supervisor/$(BOOT_ROMFS_VARIANT)/supervisor.tar
 BOOT_ROMFS_HDR     := engine/platform/nuttx/app/boot-romfs.h
+# Optional factory-seed registry: any engine/wasm/registry-seed/*.wapp is bundled
+# under /rom/registry and copied into the writable registry on first boot.
+BOOT_ROMFS_SEED    := engine/wasm/registry-seed
 
 # Generate the header before compiling the shim (apps pre-build hook).
 context:: $(BOOT_ROMFS_HDR)
 
-$(BOOT_ROMFS_HDR): $(BOOT_ROMFS_SRC)
+# Depend on the seed *directory* (its mtime tracks add/remove), not the *.wapp
+# files: a registry filename contains a colon ("<name>:<ver>.wapp"), which Make
+# cannot have in a prerequisite. $(wildcard ) yields nothing when absent.
+$(BOOT_ROMFS_HDR): $(BOOT_ROMFS_SRC) $(wildcard $(BOOT_ROMFS_SEED))
 	$(Q) rm -rf boot-romfs-stage && mkdir -p boot-romfs-stage/wanted
 	$(Q) cp $< boot-romfs-stage/wanted/supervisor.tar
+	$(Q) if ls $(BOOT_ROMFS_SEED)/*.wapp >/dev/null 2>&1; then \
+	       mkdir -p boot-romfs-stage/registry; \
+	       cp $(BOOT_ROMFS_SEED)/*.wapp boot-romfs-stage/registry/; \
+	     fi
 	$(Q) genromfs -f boot-romfs.img -d boot-romfs-stage -V wanted
 	$(Q) { echo '#include <nuttx/compiler.h>'; \
 	       xxd -i boot-romfs.img \
