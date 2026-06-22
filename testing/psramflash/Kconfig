@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PSRAMFLASH
+	tristate "ESP32 flash-read-while-PSRAM-dirty reproducer"
+	default n
+	---help---
+		Standalone reproducer for the ESP32 corruption where a manual
+		SPI-flash read returns corrupt bytes while another task holds
+		live (dirty) PSRAM. Writes a known pattern to a file, then reads
+		it back while a thread scribbles a PSRAM buffer, reporting read
+		errors and content mismatches.
+
+if TESTING_PSRAMFLASH
+
+config TESTING_PSRAMFLASH_PROGNAME
+	string "Program name"
+	default "psramflash"
+
+config TESTING_PSRAMFLASH_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_PSRAMFLASH_STACKSIZE
+	int "Stack size"
+	default 8192
+
+endif
