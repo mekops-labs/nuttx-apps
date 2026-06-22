@@ -109,7 +109,7 @@ CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c
 VPATH   += engine/platform/posix
 DEPPATH += --dep-path engine/platform/posix
 
-CSRCS += vfs-nuttx.c vfs-gpio.c
+CSRCS += vfs-nuttx.c vfs-gpio.c vfs-wifi.c
 VPATH   += engine/platform/nuttx/vfs
 DEPPATH += --dep-path engine/platform/nuttx/vfs
 
