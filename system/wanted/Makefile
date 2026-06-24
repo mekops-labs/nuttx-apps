@@ -53,10 +53,12 @@ CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
 # ESP32 worker stacks must live in internal DRAM (a stack must stay reachable
 # while the cache is disabled for flash ops/ISRs), and internal RAM is scarce
-# once WiFi + the PSRAM-backed engine are resident. 32 KB fits the supervisor
-# (the WAMR classic interpreter keeps the wasm operand stack separate); the
-# 64 KB default does not allocate alongside WiFi. See the coexistence plan.
-CFLAGS += -DWASM_WORKER_STACK_SIZE=32768
+# once WiFi + the PSRAM-backed engine are resident. 24 KB lets two worker
+# stacks (supervisor + one wapp) coexist with the WiFi/net buffers; 32 KB only
+# fits one, and the 64 KB default does not allocate alongside WiFi at all. The
+# WAMR classic interpreter keeps the wasm operand stack separate, so 24 KB of
+# native stack is sufficient. See the coexistence plan.
+CFLAGS += -DWASM_WORKER_STACK_SIZE=24576
 CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_SUPERVISOR_IMAGE)))\"
 
 # Resource-limit overrides forwarded from `make nuttx-build PROFILE=<name>`
