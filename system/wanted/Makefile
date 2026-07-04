@@ -48,6 +48,7 @@ CFLAGS += -Iengine/platform/nuttx/include
 CFLAGS += -Iengine/vendor/tiny-json
 CFLAGS += -Iengine/vendor/c9
 CFLAGS += -Iengine/vendor/cwalk/include
+CFLAGS += -Iengine/vendor/uzlib/src
 
 CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
@@ -87,7 +88,8 @@ CSRCS += vfs.c vfs-9p.c vfs-config.c vfs-devfs.c vfs-netfs.c vfs-null.c \
          vfs-log.c vfs-logmount.c vfs-pipe.c vfs-procfs.c vfs-procfs-wapps.c \
          vfs-stdio.c vfs-tarfs.c vfs-socket.c \
          vfs-wanted.c vfs-wanted-config.c vfs-wanted-wapps.c \
-         vfs-wanted-registry.c vfs-virtual.c
+         vfs-wanted-registry.c vfs-virtual.c \
+         vfs-sha256.c vfs-ed25519.c vfs-inflate.c
 VPATH   += engine/src/vfs
 DEPPATH += --dep-path engine/src/vfs
 
@@ -108,8 +110,15 @@ CSRCS += cwalk.c
 VPATH   += engine/vendor/cwalk/src
 DEPPATH += --dep-path engine/vendor/cwalk/src
 
+# uzlib: decompressor + checksums only (the compressor stays uncompiled),
+# matching the host build (src/CMakeLists.txt). Backs /dev/inflate (vfs-inflate.c).
+CSRCS += tinflate.c crc32.c adler32.c
+VPATH   += engine/vendor/uzlib/src
+DEPPATH += --dep-path engine/vendor/uzlib/src
+
 # --- NuttX platform layer -------------------------------------------------
-CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c
+CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c \
+         crypto.c
 VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
