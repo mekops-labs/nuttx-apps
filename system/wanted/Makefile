@@ -123,7 +123,11 @@ VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
 # --- Shared POSIX platform layer (also compiled by the Linux engine build) --
-CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c
+# sha256.c backs the PlatformSha256* seam vfs-sha256.c now calls (moved out of
+# a NuttX-only inline FIPS 180-4 implementation when the engine gained a
+# cross-platform crypto seam); missing this left PlatformSha256New/Update/
+# Final/Free undefined at link time.
+CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c
 VPATH   += engine/platform/posix
 DEPPATH += --dep-path engine/platform/posix
 
