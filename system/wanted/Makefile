@@ -148,11 +148,13 @@ CSRCS   += wanted_sim_main.c
 VPATH   += engine/platform/nuttx/app
 DEPPATH += --dep-path engine/platform/nuttx/app
 
-# ESP32 (or any no-host-fs target) boot ROMFS: bake the supervisor TAR into a
-# ROMFS image generated at build time and compile the wanted_esp32_main init
-# shim that mounts it at /rom. Gated so the sim build is untouched.
+# Any no-host-fs target's boot ROMFS: bake the supervisor TAR into a ROMFS
+# image generated at build time. Both board init shims that mount it at /rom
+# are compiled unconditionally here (a few bytes each); only one is ever
+# selected as CONFIG_INIT_ENTRYPOINT for a given board config. Gated so the
+# sim build is untouched.
 ifeq ($(CONFIG_SYSTEM_WANTED_BOOT_ROMFS),y)
-CSRCS += wanted_esp32_main.c
+CSRCS += wanted_esp32_main.c wanted_rp2350_main.c
 
 BOOT_ROMFS_VARIANT := $(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR)))
 BOOT_ROMFS_SRC     := engine/wasm/supervisor/$(BOOT_ROMFS_VARIANT)/supervisor.tar
