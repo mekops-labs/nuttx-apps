@@ -49,6 +49,7 @@ CFLAGS += -Iengine/vendor/tiny-json
 CFLAGS += -Iengine/vendor/c9
 CFLAGS += -Iengine/vendor/cwalk/include
 CFLAGS += -Iengine/vendor/uzlib/src
+CFLAGS += -Iengine/vendor/ed25519/src
 
 CFLAGS += -DPLATFORM_NUTTX=1
 CFLAGS += -DSECURE_SOCKETS=0
@@ -115,6 +116,14 @@ DEPPATH += --dep-path engine/vendor/cwalk/src
 CSRCS += tinflate.c crc32.c adler32.c
 VPATH   += engine/vendor/uzlib/src
 DEPPATH += --dep-path engine/vendor/uzlib/src
+
+# ed25519 (orlp/ed25519, verify-only subset): backs PlatformEd25519Verify
+# (platform/nuttx/api/crypto.c) - NuttX's vendored mbedTLS has no Ed25519
+# support. Not part of the host build: Linux keeps its OpenSSL-backed
+# PlatformEd25519Verify (platform/linux/api/crypto.c) unchanged.
+CSRCS += verify.c sha512.c ge.c sc.c fe.c
+VPATH   += engine/vendor/ed25519/src
+DEPPATH += --dep-path engine/vendor/ed25519/src
 
 # --- NuttX platform layer -------------------------------------------------
 CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c \
