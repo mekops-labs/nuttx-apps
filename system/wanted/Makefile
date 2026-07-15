@@ -52,7 +52,13 @@ CFLAGS += -Iengine/vendor/uzlib/src
 CFLAGS += -Iengine/vendor/ed25519/src
 
 CFLAGS += -DPLATFORM_NUTTX=1
+# TLS secure sockets: the shared raw-mbedTLS layer over apps/crypto/mbedtls
+# (whose Make.defs already puts the mbedtls headers on every app's CFLAGS).
+ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
+CFLAGS += -DSECURE_SOCKETS=1
+else
 CFLAGS += -DSECURE_SOCKETS=0
+endif
 # ESP32 worker stacks must live in internal DRAM (a stack must stay reachable
 # while the cache is disabled for flash ops/ISRs), and internal RAM is scarce
 # once WiFi + the PSRAM-backed engine are resident. 24 KB lets two worker
@@ -137,6 +143,9 @@ DEPPATH += --dep-path engine/platform/nuttx/api
 # cross-platform crypto seam); missing this left PlatformSha256New/Update/
 # Final/Free undefined at link time.
 CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c
+ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
+CSRCS   += ssocket-mbedtls.c
+endif
 VPATH   += engine/platform/posix
 DEPPATH += --dep-path engine/platform/posix
 

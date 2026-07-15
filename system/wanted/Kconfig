@@ -60,4 +60,17 @@ config SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR
 		to bake into the boot ROMFS: wsh (interactive shell), sheriff
 		(production), or selftest.
 
+config SYSTEM_WANTED_TLS
+	bool "TLS secure sockets (mbedTLS)"
+	default n
+	depends on NET
+	select CRYPTO_MBEDTLS
+	select MBEDTLS_NET_C
+	---help---
+		Back the engine's secure socket types (tcps://, udps://) with the
+		mbedTLS stack (apps/crypto/mbedtls). Compiles the shared raw-mbedTLS
+		TLS layer (engine/platform/posix/ssocket-mbedtls.c) and builds the
+		engine with SECURE_SOCKETS=1. Without this, secure socket entries
+		are rejected at wapp launch.
+
 endif # SYSTEM_WANTED
