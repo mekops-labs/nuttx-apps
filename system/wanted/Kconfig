@@ -1,6 +1,17 @@
 #
 # WANTED Engine built-in application
 #
+# This is the host-edge file, not a copy of the engine's configuration. The
+# engine owns a Kconfig tree of its own and the app build generates its header
+# from an engine .config; the values live there. What belongs HERE is only what
+# crosses the boundary into NuttX's own symbols (depends on NET, select
+# CRYPTO_MBEDTLS) — edges the engine's tree must never reference, because it is
+# read standalone too and kconfiglib resolves an unknown symbol to n without
+# stopping.
+#
+# Keep the two disjoint. A CONFIG_WANTED_* symbol declared here would shadow the
+# engine's and give the build two answers for one question.
+#
 # WAMR is vendored: this app compiles engine/vendor/wamr directly via
 # product-mini/platforms/nuttx/wamr.mk, so it does NOT select INTERPRETERS_WAMR
 # (apps/interpreters/wamr), which would trigger a second, separate WAMR build.
