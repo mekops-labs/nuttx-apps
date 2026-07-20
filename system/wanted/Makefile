@@ -59,21 +59,38 @@ CFLAGS += -DSECURE_SOCKETS=1
 else
 CFLAGS += -DSECURE_SOCKETS=0
 endif
-# ESP32 worker stacks must live in internal DRAM (a stack must stay reachable
-# while the cache is disabled for flash ops/ISRs), and internal RAM is scarce
-# once WiFi + the PSRAM-backed engine are resident. 24 KB lets two worker
-# stacks (supervisor + one wapp) coexist with the WiFi/net buffers; 32 KB only
-# fits one, and the 64 KB default does not allocate alongside WiFi at all. The
-# WAMR classic interpreter keeps the wasm operand stack separate, so 24 KB of
-# native stack is sufficient. See the coexistence plan.
-CFLAGS += -DWASM_WORKER_STACK_SIZE=24576
 CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_SUPERVISOR_IMAGE)))\"
 
-# Resource-limit overrides forwarded from `make nuttx-build PROFILE=<name>`
-# (engine cmake/profiles/<name>.cmake, extracted by test/nuttx-sim.sh). The
-# engine headers #ifndef-guard each limit, so these -D defines win over the
-# defaults; empty when no profile is selected (uses the constrained defaults).
-CFLAGS += $(WANTED_RESOURCE_DEFINES)
+# Engine build configuration. The engine owns a Kconfig tree whose generated
+# header every engine source includes. It is generated from the engine's own
+# .config rather than the host's: the two are separate symbol namespaces.
+#
+# WANTED_DEFCONFIG names an engine envelope (engine configs/<name>_defconfig);
+# unset, the Kconfig defaults apply. The ESP32 target selects one carrying a
+# 24 KiB worker stack — its stacks must live in scarce internal DRAM.
+#
+# Generated while this Makefile is parsed rather than as a rule: Application.mk
+# (which defines OBJS and the compile rules) is included at the end, so a rule
+# keyed on OBJS here would see it empty and the header would still be missing at
+# the first compile. genconfig skips the write when the contents are unchanged,
+# so running it every invocation does not churn rebuilds.
+WANTED_AUTOCONF_DIR := $(APPDIR)/system/wanted/autoconf
+WANTED_AUTOCONF     := $(WANTED_AUTOCONF_DIR)/wanted-autoconf.h
+WANTED_DOTCONFIG    := $(WANTED_AUTOCONF_DIR)/.config
+WANTED_DEFCONFIG    ?=
+
+CFLAGS += -I$(WANTED_AUTOCONF_DIR)
+
+WANTED_ENGINE_DIR  := $(APPDIR)/system/wanted/engine
+WANTED_KCONFIG_ENV := PYTHONPATH=tools/kconfiglib KCONFIG_CONFIG=$(WANTED_DOTCONFIG)
+ifeq ($(WANTED_DEFCONFIG),)
+WANTED_KCONFIG_SEED := olddefconfig.py Kconfig
+else
+WANTED_KCONFIG_SEED := defconfig.py --kconfig Kconfig configs/$(WANTED_DEFCONFIG)
+endif
+$(shell mkdir -p $(WANTED_AUTOCONF_DIR))
+$(shell cd $(WANTED_ENGINE_DIR) && $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED))
+$(shell cd $(WANTED_ENGINE_DIR) && $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py --header-path $(WANTED_AUTOCONF) Kconfig)
 
 # Override object SUFFIX to be stable regardless of build path (fixes CI failures
 # with long absolute paths in CWD mangled by Application.mk).
