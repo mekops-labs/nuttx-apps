@@ -65,6 +65,10 @@ CFLAGS += -DSUPERVISOR_IMAGE_PATH=\"$(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WAN
 # header every engine source includes. It is generated from the engine's own
 # .config rather than the host's: the two are separate symbol namespaces.
 #
+# Kconfig.engine, not the engine's top-level Kconfig: that one adds a target
+# menu for picking what to build, which this build has already answered by
+# existing. Sourcing the engine half is exactly the seam it is split for.
+#
 # WANTED_DEFCONFIG names an engine envelope (engine configs/<name>_defconfig);
 # unset, the Kconfig defaults apply. The ESP32 target selects one carrying a
 # 24 KiB worker stack — its stacks must live in scarce internal DRAM.
@@ -84,9 +88,9 @@ CFLAGS += -I$(WANTED_AUTOCONF_DIR)
 WANTED_ENGINE_DIR  := $(APPDIR)/system/wanted/engine
 WANTED_KCONFIG_ENV := PYTHONPATH=tools/kconfiglib KCONFIG_CONFIG=$(WANTED_DOTCONFIG)
 ifeq ($(WANTED_DEFCONFIG),)
-WANTED_KCONFIG_SEED := olddefconfig.py Kconfig
+WANTED_KCONFIG_SEED := olddefconfig.py Kconfig.engine
 else
-WANTED_KCONFIG_SEED := defconfig.py --kconfig Kconfig configs/$(WANTED_DEFCONFIG)
+WANTED_KCONFIG_SEED := defconfig.py --kconfig Kconfig.engine configs/$(WANTED_DEFCONFIG)
 endif
 # Captured, not bare: a bare $(shell) expands to its stdout, which make would
 # then read as makefile syntax. Progress chatter goes to /dev/null; only
@@ -104,10 +108,10 @@ endif
 WANTED_KCONFIG_LOG := $(shell mkdir -p $(WANTED_AUTOCONF_DIR) && \
   cd $(WANTED_ENGINE_DIR) && \
   $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED) 2>&1 >/dev/null && \
-  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/setconfig.py --kconfig Kconfig \
+  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/setconfig.py --kconfig Kconfig.engine \
     $(WANTED_KCONFIG_TLS) 2>&1 >/dev/null && \
   $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py \
-    --header-path $(WANTED_AUTOCONF) Kconfig 2>&1 >/dev/null)
+    --header-path $(WANTED_AUTOCONF) Kconfig.engine 2>&1 >/dev/null)
 ifneq ($(WANTED_KCONFIG_LOG),)
 $(info wanted kconfig: $(WANTED_KCONFIG_LOG))
 endif
