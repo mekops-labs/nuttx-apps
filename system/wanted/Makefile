@@ -91,9 +91,21 @@ endif
 # Captured, not bare: a bare $(shell) expands to its stdout, which make would
 # then read as makefile syntax. Progress chatter goes to /dev/null; only
 # kconfiglib's warnings (stderr) are kept, and they run once per make.
+# NuttX decides whether mbedTLS is in the image, so it also decides the engine's
+# secure-socket setting rather than each board defconfig restating it. Without
+# this the engine's default (on) meets a board built without mbedTLS and the
+# host guard stops the build — correctly, but for a mismatch nobody chose.
+ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
+WANTED_KCONFIG_TLS := WANTED_VFS_SOCKET_TLS=y
+else
+WANTED_KCONFIG_TLS := WANTED_VFS_SOCKET_TLS=n
+endif
+
 WANTED_KCONFIG_LOG := $(shell mkdir -p $(WANTED_AUTOCONF_DIR) && \
   cd $(WANTED_ENGINE_DIR) && \
   $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED) 2>&1 >/dev/null && \
+  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/setconfig.py --kconfig Kconfig \
+    $(WANTED_KCONFIG_TLS) 2>&1 >/dev/null && \
   $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py \
     --header-path $(WANTED_AUTOCONF) Kconfig 2>&1 >/dev/null)
 ifneq ($(WANTED_KCONFIG_LOG),)
