@@ -88,9 +88,16 @@ WANTED_KCONFIG_SEED := olddefconfig.py Kconfig
 else
 WANTED_KCONFIG_SEED := defconfig.py --kconfig Kconfig configs/$(WANTED_DEFCONFIG)
 endif
-$(shell mkdir -p $(WANTED_AUTOCONF_DIR))
-$(shell cd $(WANTED_ENGINE_DIR) && $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED))
-$(shell cd $(WANTED_ENGINE_DIR) && $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py --header-path $(WANTED_AUTOCONF) Kconfig)
+# Captured, not bare: a bare $(shell) expands to its stdout, which make would
+# then read as makefile syntax.
+WANTED_KCONFIG_LOG := $(shell mkdir -p $(WANTED_AUTOCONF_DIR) && \
+  cd $(WANTED_ENGINE_DIR) && \
+  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED) 2>&1 && \
+  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py \
+    --header-path $(WANTED_AUTOCONF) Kconfig 2>&1)
+ifneq ($(WANTED_KCONFIG_LOG),)
+$(info wanted kconfig: $(WANTED_KCONFIG_LOG))
+endif
 
 # Override object SUFFIX to be stable regardless of build path (fixes CI failures
 # with long absolute paths in CWD mangled by Application.mk).
