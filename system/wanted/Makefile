@@ -89,12 +89,13 @@ else
 WANTED_KCONFIG_SEED := defconfig.py --kconfig Kconfig configs/$(WANTED_DEFCONFIG)
 endif
 # Captured, not bare: a bare $(shell) expands to its stdout, which make would
-# then read as makefile syntax.
+# then read as makefile syntax. Progress chatter goes to /dev/null; only
+# kconfiglib's warnings (stderr) are kept, and they run once per make.
 WANTED_KCONFIG_LOG := $(shell mkdir -p $(WANTED_AUTOCONF_DIR) && \
   cd $(WANTED_ENGINE_DIR) && \
-  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED) 2>&1 && \
+  $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/$(WANTED_KCONFIG_SEED) 2>&1 >/dev/null && \
   $(WANTED_KCONFIG_ENV) python3 tools/kconfiglib/genconfig.py \
-    --header-path $(WANTED_AUTOCONF) Kconfig 2>&1)
+    --header-path $(WANTED_AUTOCONF) Kconfig 2>&1 >/dev/null)
 ifneq ($(WANTED_KCONFIG_LOG),)
 $(info wanted kconfig: $(WANTED_KCONFIG_LOG))
 endif
