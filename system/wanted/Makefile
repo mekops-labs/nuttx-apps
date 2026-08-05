@@ -138,7 +138,7 @@ CSRCS += vfs.c vfs-9p.c vfs-config.c vfs-devfs.c vfs-netfs.c vfs-null.c \
          vfs-stdio.c vfs-tarfs.c vfs-socket.c \
          vfs-wanted.c vfs-wanted-config.c vfs-wanted-wapps.c \
          vfs-wanted-registry.c vfs-virtual.c \
-         vfs-sha256.c vfs-ed25519.c vfs-inflate.c vfs-gpio.c vfs-uart.c
+         vfs-sha256.c vfs-ed25519.c vfs-inflate.c vfs-gpio.c vfs-uart.c vfs-ota.c
 VPATH   += engine/src/vfs
 DEPPATH += --dep-path engine/src/vfs
 
@@ -175,7 +175,7 @@ DEPPATH += --dep-path engine/vendor/ed25519/src
 
 # --- NuttX platform layer -------------------------------------------------
 CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c \
-         crypto.c gpio.c uart.c
+         crypto.c gpio.c uart.c ota.c
 VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
