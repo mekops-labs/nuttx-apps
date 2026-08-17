@@ -184,7 +184,8 @@ DEPPATH += --dep-path engine/platform/nuttx/api
 # a NuttX-only inline FIPS 180-4 implementation when the engine gained a
 # cross-platform crypto seam); missing this left PlatformSha256New/Update/
 # Final/Free undefined at link time.
-CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c
+CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c \
+           wake.c persist-mem.c reset-reason.c
 ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
 CSRCS   += ssocket-mbedtls.c
 endif
