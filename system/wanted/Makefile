@@ -175,7 +175,7 @@ DEPPATH += --dep-path engine/vendor/ed25519/src
 
 # --- NuttX platform layer -------------------------------------------------
 CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c \
-         crypto.c gpio.c uart.c ota.c
+         crypto.c gpio.c uart.c ota.c wdt.c
 VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
