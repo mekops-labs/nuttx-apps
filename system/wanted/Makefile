@@ -129,7 +129,7 @@ CFLAGS += -DWANTED_VERSION=\"$(WANTED_VERSION)\"
 
 # --- Engine core ----------------------------------------------------------
 CSRCS += wanted_malloc.c wanted.c wanted_wasm_api.c wanted-vfs-api.c log-store.c \
-         extra-drivers-none.c
+         version.c extra-drivers-none.c
 VPATH   += engine/src
 DEPPATH += --dep-path engine/src
 
