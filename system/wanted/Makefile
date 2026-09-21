@@ -96,8 +96,10 @@ ifneq ($(WANTED_KCONFIG_LOG),)
 $(info wanted kconfig: $(WANTED_KCONFIG_LOG))
 endif
 
-# This board's own factory seeds: a space-separated wapps/<name> list, empty by default
-WANTED_SEED_WAPPS := $(patsubst "%",%,$(strip \
+# This board's own factory seeds: a space-separated wapps/<name> list, empty by
+# default. $(subst ",,...) strips quotes word-count-agnostically (patsubst's
+# per-word matching mishandles a multi-word quoted value).
+WANTED_SEED_WAPPS := $(strip $(subst ",,\
   $(shell sed -n 's/^CONFIG_WANTED_SEED_WAPPS=//p' $(WANTED_DOTCONFIG))))
 
 # Override object SUFFIX to be stable regardless of build path (fixes CI
