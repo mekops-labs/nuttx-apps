@@ -71,6 +71,20 @@ config SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR
 		to bake into the boot ROMFS: wsh (interactive shell), sheriff
 		(production), or selftest.
 
+config SYSTEM_WANTED_PROVISION_PROMPT
+	bool "Prompt the console for a provisioning blob at boot"
+	default n
+	---help---
+		Ask on the console for a base64 provisioning blob when the supervisor
+		holds no redeemed secret, and store it verbatim for the supervisor to
+		decode. A boot that gets no answer waits a bounded time and then starts
+		unprovisioned.
+
+		This also starts the engine from the configured launch JSON instead of
+		the generic entry point, whose default config grants no mounts or
+		sockets. For a board whose supervisor reconciles against a control
+		plane and is provisioned by hand at the bench.
+
 config SYSTEM_WANTED_TLS
 	bool "TLS secure sockets (mbedTLS)"
 	default n
