@@ -127,7 +127,7 @@ CSRCS += vfs.c vfs-9p.c vfs-config.c vfs-devfs.c vfs-netfs.c vfs-null.c \
 VPATH   += engine/src/vfs
 DEPPATH += --dep-path engine/src/vfs
 
-CSRCS += wasi-vfs.c
+CSRCS += wasi-vfs.c wasi-poll.c
 VPATH   += engine/src/wasi
 DEPPATH += --dep-path engine/src/wasi
 
@@ -162,7 +162,7 @@ DEPPATH += --dep-path engine/platform/nuttx/api
 
 # --- Shared POSIX platform layer (also compiled by the Linux engine build) --
 CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c \
-           wake.c persist-mem.c reset-reason.c
+           wake.c ready.c persist-mem.c reset-reason.c
 ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
 CSRCS   += ssocket-mbedtls.c
 endif
