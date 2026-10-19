@@ -112,7 +112,7 @@ CFLAGS += -DWANTED_VERSION=\"$(WANTED_VERSION)\"
 
 # --- Engine core ----------------------------------------------------------
 CSRCS += wanted_malloc.c wanted.c wanted_wasm_api.c wanted-vfs-api.c log-store.c \
-         wanted-image-verify.c \
+         wanted-image-verify.c registry.c registry-record.c \
          version.c extra-drivers-none.c
 VPATH   += engine/src
 DEPPATH += --dep-path engine/src
@@ -155,13 +155,14 @@ VPATH   += engine/vendor/ed25519/src
 DEPPATH += --dep-path engine/vendor/ed25519/src
 
 # --- NuttX platform layer -------------------------------------------------
-CSRCS += clock-sleep.c random.c wapps.c memory.c registry.c fs-volume.c extram.c \
+CSRCS += clock-sleep.c random.c wapps.c memory.c fs-volume.c extram.c \
          crypto.c gpio.c uart.c ota.c wdt.c
 VPATH   += engine/platform/nuttx/api
 DEPPATH += --dep-path engine/platform/nuttx/api
 
 # --- Shared POSIX platform layer (also compiled by the Linux engine build) --
-CSRCS   += mutex.c clock.c fs.c socket.c registry-store.c wapps-image.c sha256.c \
+CSRCS   += mutex.c clock.c fs.c socket.c registry-fs.c registry-stores.c \
+           file-map.c wapps-image.c sha256.c \
            wake.c ready.c persist-mem.c reset-reason.c
 ifeq ($(CONFIG_SYSTEM_WANTED_TLS),y)
 CSRCS   += ssocket-mbedtls.c
@@ -185,7 +186,7 @@ DEPPATH += --dep-path engine/platform/nuttx/app
 
 # Any no-host-fs target's boot ROMFS
 ifeq ($(CONFIG_SYSTEM_WANTED_BOOT_ROMFS),y)
-CSRCS += wanted_esp32_main.c wanted_rp2350_main.c
+CSRCS += wanted_esp32_main.c wanted_rp2350_main.c wanted_seed.c
 
 BOOT_ROMFS_VARIANT := $(patsubst "%",%,$(strip $(CONFIG_SYSTEM_WANTED_BOOT_ROMFS_SUPERVISOR)))
 BOOT_ROMFS_SRC     := engine/wasm/supervisor/$(BOOT_ROMFS_VARIANT)/supervisor.tar
